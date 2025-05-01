@@ -1,2 +1,2 @@
 # tally
-tally are the beacons used for per-server scoring in netsiege
+tally is the beacon used for per-server scoring in netsiege
