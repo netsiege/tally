@@ -1,6 +1,5 @@
 use std::{io::{Read, Write}, net::{TcpListener, TcpStream}};
 use crate::{constant, respond::generate_response};
-use crate::respond;
 use eyre::Result;
 
 pub fn listen() -> Result<()> {
