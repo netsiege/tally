@@ -9,23 +9,26 @@ pub fn extract_paths(joined_paths: &String) -> Vec<&str> {
 }
 
 fn get_first_line(path: &str) -> Result<String> {
-    // try opening control file
+    // try opening claim file
     let file: File = File::open(path).with_context(|| format!("Failed to open file {}", path))?;
     let mut reader: BufReader<File> = BufReader::new(file);
     let mut first_line = String::new();
 
-    // return first line of control file if it is not empty
+    // return first line of claim file if it is not empty
     if reader.read_line(&mut first_line)? > 0 {
         Ok(first_line.trim_end().to_string())
     } else {
-        Err(io::Error::new(io::ErrorKind::Other, "File is empty").into())
+        Ok("".to_string())
     }
 }
 
 pub fn generate_challenge_hash(path: &str) -> Result<String> {
     // generate the challenge plaintext:
-    let control_content: String = get_first_line(path)?;
-    let challenge_plaintext = control_content + ":" + path;
+    let claim_content: String = get_first_line(path)?;
+    if claim_content == "" {
+        return Ok("".to_string());
+    }
+    let challenge_plaintext = claim_content + ":" + path;
     println!("{}", challenge_plaintext);
 
     // hash challenge with sha1
