@@ -16,6 +16,7 @@ fn get_first_line(path: &str) -> Result<String> {
 
     // return first line of claim file if it is not empty
     if reader.read_line(&mut first_line)? > 0 {
+        let _ = File::create(path);
         Ok(first_line.trim_end().to_string())
     } else {
         Ok("".to_string())

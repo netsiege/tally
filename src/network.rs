@@ -15,10 +15,8 @@ pub fn handle_connection(stream: &mut TcpStream) {
     while let Ok(n) = stream.read(&mut buffer) {
         if n == 0 { break; }
         let received_string = String::from_utf8_lossy(&buffer[..n]);
-        // println!("Received: {}", received_string);
 
         let response = generate_response(received_string.trim().to_string());
-        // println!("{}",response);
         let _ = stream.write_all(response.as_bytes());
     }
 }
