@@ -10,12 +10,8 @@ pub fn extract_paths(joined_paths: &String) -> Vec<&str> {
 
 fn get_first_line(path: &str) -> Result<String> {
     // try opening claim file
+    let file: File = File::open(path)?;
 
-    // if metadata(path).unwrap().is_dir() {
-    //     return Ok("".to_string());
-    // }
-
-    let file: File = File::open(path).with_context(|| format!("Failed to open file {}", path)).expect("");
     let mut reader: BufReader<File> = BufReader::new(file);
     let mut first_line = String::new();
 
