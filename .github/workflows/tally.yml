@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build: 
+  build-linux : 
     runs-on: ubuntu-latest
 
     steps:
@@ -28,3 +28,26 @@ jobs:
       with:
         name: tally
         path: target/release/tally
+
+  build-windows : 
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        default: true
+        override: true
+
+    - name: Build project
+      run: cargo build --release
+
+    - name: Upload release binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: tally.exe
+        path: target/release/tally.exe
