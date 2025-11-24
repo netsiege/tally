@@ -5,11 +5,11 @@
         },
         {
             "type": "check_control",
-            "file_path": "/Users/akshay/ctrl.txt"
+            "file_path": "/root/ctrl.txt"
         },
         {
             "type": "check_control",
-            "file_path": "/root/ctrl.txt"
+            "file_path": "/home/inspire/ctrl.txt"
         }
     ]
 }
