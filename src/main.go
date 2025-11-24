@@ -8,11 +8,12 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 var ENDPOINT string
 var HOSTNAME string
-var PORT int
+var INTERVAL int
 
 // Flow:
 /*
@@ -25,26 +26,35 @@ var PORT int
 
 func main() {
 	fmt.Println("Tally Beacon Service Starting...")
-	tasks, err := getTasks()
-	if err != nil {
-		fmt.Println("Error getting tasks:", err)
-		return
-	}
+	for {
+		tasks, err := getTasks()
+		if err != nil {
+			fmt.Println("Error getting tasks:", err)
+			continue
+		}
 
-	topTask, err := getTopTask(tasks)
-	if err != nil {
-		fmt.Println("Error getting top task:", err)
-		return
-	}
+		topTask, err := getTopTask(tasks)
+		if err != nil {
+			fmt.Println("No tasks to execute:", err)
+			continue
+		}
 
-	controlResp, keyRotResp, err := executeTask(topTask)
-	if err != nil {
-		fmt.Println("Error executing task:", err)
-		return
-	}
+		controlResp, keyRotResp, err := executeTask(topTask)
+		if err != nil {
+			fmt.Println("Error executing task:", err)
+			continue
+		}
 
-	fmt.Println("Control Check Response:", controlResp)
-	fmt.Println("Key Rotation Response:", keyRotResp)
+		if topTask.TaskType == "check_control" {
+			fmt.Printf("Control Check Response: %+v\n", controlResp)
+		} else if topTask.TaskType == "rotate_key" {
+			fmt.Printf("Key Rotation Response: %+v\n", keyRotResp)
+		}
+
+		// Sleep for a while before checking for new tasks
+		// time.Sleep(time.Duration(INTERVAL) * time.Second)
+		time.Sleep(time.Duration(10) * time.Second)
+	}
 }
 
 type Tasks struct {
