@@ -20,7 +20,7 @@ func main() {
 		Name:             "tally",
 		DisplayName:      "tally Beacon Service",
 		Description:      "Monitors and executes control tasks from scorekeeper - used for scoring netsiege",
-		WorkingDirectory: "/Users/akshay/Documents/GitHub/tally/tally",
+		// WorkingDirectory: "/Users/akshay/Documents/GitHub/tally/tally",
 		Arguments:        []string{},
 	}
 
