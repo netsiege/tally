@@ -21,7 +21,7 @@ func checkControl(task Task) (controlCheckResponse, error) {
 			success:      false,
 			file_path:    task.FilePath,
 			file_exists:  false,
-			access_error: "file does not exist",
+			access_error: "[NOTEXIST] - file does not exist",
 		}, nil
 	}
 
@@ -40,7 +40,7 @@ func checkControl(task Task) (controlCheckResponse, error) {
 			success:      false,
 			file_path:    task.FilePath,
 			file_exists:  true,
-			access_error: "file too large (over 1MB)",
+			access_error: "[MAXSIZE] - file too large (over 1MB)",
 		}, nil
 	}
 
@@ -49,7 +49,7 @@ func checkControl(task Task) (controlCheckResponse, error) {
 			success:      false,
 			file_path:    task.FilePath,
 			file_exists:  true,
-			access_error: "file is empty",
+			access_error: "[EMPTY] - file is empty",
 		}, nil
 	}
 

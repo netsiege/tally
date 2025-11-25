@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"os"
+
+	"github.com/kardianos/service"
 )
 
 // Flow:
@@ -13,35 +15,40 @@ import (
 // 5. Repeat every X seconds
 
 func main() {
-	fmt.Println("Tally Beacon Service Starting...")
+	// Service configuration
+	svcConfig := &service.Config{
+		Name:             "tally",
+		DisplayName:      "tally Beacon Service",
+		Description:      "Monitors and executes control tasks from scorekeeper - used for scoring netsiege",
+		WorkingDirectory: "/Users/akshay/Documents/GitHub/tally/tally",
+		Arguments:        []string{},
+	}
 
-	for {
-		tasks, err := getTasks()
+	// Create program instance
+	prg := &program{}
+
+	// Create service wrapper
+	s, err := service.New(prg, svcConfig)
+	if err != nil {
+		fmt.Printf("Error creating service: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Handle service control commands (install, uninstall, start, stop)
+	if len(os.Args) > 1 {
+		err = service.Control(s, os.Args[1])
 		if err != nil {
-			fmt.Println("Error getting tasks:", err)
-			continue
+			fmt.Printf("Valid commands: install, uninstall, start, stop, restart\n")
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
 		}
+		return
+	}
 
-		topTask, err := getTopTask(tasks)
-		if err != nil {
-			fmt.Println("No tasks to execute:", err)
-			continue
-		}
-
-		controlResp, keyRotResp, err := executeTask(topTask)
-		if err != nil {
-			fmt.Println("Error executing task:", err)
-			continue
-		}
-
-		if topTask.TaskType == "check_control" {
-			fmt.Printf("Control Check Response: %+v\n", controlResp)
-		} else if topTask.TaskType == "rotate_key" {
-			fmt.Printf("Key Rotation Response: %+v\n", keyRotResp)
-		}
-
-		// Sleep for a while before checking for new tasks
-		// time.Sleep(time.Duration(INTERVAL) * time.Second)
-		time.Sleep(time.Duration(10) * time.Second)
+	// Run the service (works in both console and service mode)
+	err = s.Run()
+	if err != nil {
+		fmt.Printf("Error running service: %v\n", err)
+		os.Exit(1)
 	}
 }

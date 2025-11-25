@@ -1,11 +1,11 @@
 {
     "tasks" : [
         {
-            "type": "rotate_key"
+            "type": "check_control",
+            "file_path": "/tmp/ctrl.txt"
         },
         {
-            "type": "check_control",
-            "file_path": "/root/ctrl.txt"
+            "type": "rotate_key"
         },
         {
             "type": "check_control",
