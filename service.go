@@ -15,6 +15,11 @@ type program struct {
 // Start is called by the service manager when the service starts
 // This method must be non-blocking and return quickly
 func (p *program) Start(s service.Service) error {
+	// Initialize logger based on execution mode
+	if err := InitLogger(s); err != nil {
+		return err
+	}
+
 	// Create a cancellable context for graceful shutdown
 	p.ctx, p.cancel = context.WithCancel(context.Background())
 

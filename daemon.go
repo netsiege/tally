@@ -2,30 +2,29 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 )
 
 // runDaemon contains the core daemon logic with graceful shutdown support
 func RunDaemon(ctx context.Context) error {
-	fmt.Println("Tally Beacon Service Starting...")
+	LogInfo("Tally Beacon Service Starting...")
 
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	// Run first iteration immediately
 	if err := executeTaskCycle(); err != nil {
-		fmt.Printf("Error in task cycle: %v\n", err)
+		LogError("Error in task cycle: %v", err)
 	}
 
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("Shutdown signal received, stopping gracefully...")
+			LogInfo("Shutdown signal received, stopping gracefully...")
 			return nil
 		case <-ticker.C:
 			if err := executeTaskCycle(); err != nil {
-				fmt.Printf("Error in task cycle: %v\n", err)
+				LogError("Error in task cycle: %v", err)
 			}
 		}
 	}
@@ -35,26 +34,28 @@ func RunDaemon(ctx context.Context) error {
 func executeTaskCycle() error {
 	tasks, err := getTasks()
 	if err != nil {
-		fmt.Println("Error getting tasks:", err)
+		LogError("Error getting tasks: %v", err)
 		return err
 	}
 
 	topTask, err := getTopTask(tasks)
 	if err != nil {
-		fmt.Println("No tasks to execute:", err)
+		LogInfo("No tasks to execute: %v", err)
 		return err
 	}
 
 	controlResp, keyRotResp, err := executeTask(topTask)
 	if err != nil {
-		fmt.Println("Error executing task:", err)
+		LogError("Error executing task: %v", err)
 		return err
 	}
 
 	if topTask.TaskType == "check_control" {
-		fmt.Printf("Control Check Response: %+v\n", controlResp)
+		LogInfo("Control Check Response: success=%v exists=%v content=%s error=%s",
+			controlResp.success, controlResp.file_exists, controlResp.file_content, controlResp.access_error)
 	} else if topTask.TaskType == "rotate_key" {
-		fmt.Printf("Key Rotation Response: %+v\n", keyRotResp)
+		LogInfo("Key Rotation Response: success=%v key=%s error=%s",
+			keyRotResp.success, keyRotResp.new_key, keyRotResp.rotation_error)
 	}
 
 	return nil
