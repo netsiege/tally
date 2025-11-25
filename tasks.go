@@ -77,3 +77,31 @@ func executeTask(task Task) (controlCheckResponse, keyRotationResponse, error) {
 
 	return controlCheckResponse{}, keyRotationResponse{}, fmt.Errorf("unknown task type: %s", task.TaskType)
 }
+
+func submitTaskResult(checkResponse controlCheckResponse, err error) {
+	hostname, err := os.Hostname()
+	if err != nil {
+		LogError("Failure to get hostname: %v", err)
+		return
+	}
+
+	taskSubmissionEndpoint := GetEndpointURL("/" + hostname + "/score")
+
+	jsonControlCheckResponse, err := json.Marshal(checkResponse)
+	if err != nil {
+		LogError("Failure to marshal control check response: %v", err)
+		return
+	}
+
+	key, err := getKey()
+	if err != nil {
+		LogError("Failure to get key for task submission: %v", err)
+		return
+	}
+
+	_, err = AuthenticatedPostRequestWithPayload(taskSubmissionEndpoint, jsonControlCheckResponse, key)
+	if err != nil {
+		LogError("Failure to submit task result: %v", err)
+		return
+	}
+}

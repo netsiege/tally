@@ -13,16 +13,16 @@ type Task struct {
 
 // controlCheckResponse contains the result of a control file check
 type controlCheckResponse struct {
-	success      bool
-	file_path    string
-	file_exists  bool
-	file_content string
-	access_error string
+	success      bool `json:"success"`
+	file_path    string `json:"file_path"`
+	file_exists  bool `json:"file_exists"`
+	file_content string `json:"file_content"`
+	access_error string `json:"access_error"`
 }
 
 // keyRotationResponse contains the result of a key rotation operation
 type keyRotationResponse struct {
-	success        bool
-	new_key        string
-	rotation_error string
+	success        bool `json:"success"`
+	new_key        string `json:"new_key"`
+	rotation_error string `json:"rotation_error"`
 }

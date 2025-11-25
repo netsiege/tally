@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os"
-	"runtime"
 )
 
 // generateNewKey creates a random 32-character API key using readable characters
@@ -30,17 +29,11 @@ func rotateKey(task Task) (keyRotationResponse, error) {
 	var keyfilePath string
 
 	// Determine key file path based on operating system
-	switch runtime.GOOS {
-	case "windows":
-		keyfilePath = "C:\\Administrator\\.netsiege"
-	case "linux":
-		keyfilePath = "/root/.netsiege"
-	case "darwin":
-		keyfilePath = "/Users/akshay/.netsiege"
-	default:
+	keyfilePath, err := GetKeyFilePath()
+	if err != nil {
 		return keyRotationResponse{
 			success:        false,
-			rotation_error: fmt.Sprintf("unsupported operating system: %s", runtime.GOOS),
+			rotation_error: fmt.Sprintf("failed to get key file path: %v", err),
 		}, nil
 	}
 
