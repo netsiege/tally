@@ -1,9 +1,10 @@
 package main
 
 import (
-	"runtime"
-	"os"
 	"fmt"
+	"os"
+	"runtime"
+	"strconv"
 )
 
 // Configuration variables for the Tally beacon service
@@ -12,11 +13,36 @@ var (
 	ENDPOINT string
 )
 
+// LoadConfig reads configuration from environment variables
+// (which are loaded by systemd from EnvironmentFile or set manually)
+func LoadConfig() error {
+	var err error
+
+	// Read ENDPOINT from environment (required)
+	ENDPOINT = os.Getenv("ENDPOINT")
+	if ENDPOINT == "" {
+		return fmt.Errorf("ENDPOINT environment variable not set (check systemd EnvironmentFile)")
+	}
+
+	// Read INTERVAL from environment (optional, defaults to 10)
+	intervalStr := os.Getenv("INTERVAL")
+	if intervalStr != "" {
+		INTERVAL, err = strconv.Atoi(intervalStr)
+		if err != nil {
+			return fmt.Errorf("invalid INTERVAL value '%s': %v", intervalStr, err)
+		}
+	} else {
+		INTERVAL = 10 // Default to 10 seconds
+	}
+
+	return nil
+}
+
 func GetKeyFilePath() (string, error) {
 	var keyfilePath string
 	switch runtime.GOOS {
 	case "windows":
-		keyfilePath = "C:\\Administrator\\.netsiege"
+		keyfilePath = "C:\\Users\\jacob\\.netsiege"
 	case "linux":
 		keyfilePath = "/root/.netsiege"
 	case "darwin":
