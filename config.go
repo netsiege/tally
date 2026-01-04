@@ -42,7 +42,7 @@ func GetKeyFilePath() (string, error) {
 	var keyfilePath string
 	switch runtime.GOOS {
 	case "windows":
-		keyfilePath = "C:\\Users\\jacob\\.netsiege"
+		keyfilePath = "C:\\Users\\Administrator\\.netsiege"
 	case "linux":
 		keyfilePath = "/root/.netsiege"
 	case "darwin":
