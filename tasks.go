@@ -50,7 +50,7 @@ func getTasksFromFile(filePath string) (Tasks, error) {
 
 // getTasksFromScoreKeeper retrieves tasks from the scorekeeper API
 func getTasksFromScoreKeeper() (Tasks, error) {
-	tasksEndpoint := GetEndpointURL("/api/tasks")
+	tasksEndpoint := GetEndpointURL("tasks")
 
 	key, err := getKey()
 	if err != nil {
@@ -126,7 +126,7 @@ func executeTask(task Task) (controlCheckResponse, keyRotationResponse, error) {
 }
 
 func submitTaskResult(checkResponse controlCheckResponse, key string) error {
-	taskSubmissionEndpoint := GetEndpointURL("/api/claim")
+	taskSubmissionEndpoint := GetEndpointURL("claim")
 
 	jsonControlCheckResponse, err := json.Marshal(checkResponse)
 	if err != nil {
@@ -145,7 +145,7 @@ func submitTaskResult(checkResponse controlCheckResponse, key string) error {
 }
 
 func submitKeyRotationResult(keyRotResponse keyRotationResponse, key string) error {
-	taskSubmissionEndpoint := GetEndpointURL("/api/rotate_key")
+	taskSubmissionEndpoint := GetEndpointURL("rotate_key")
 
 	jsonKeyRotationResponse, err := json.Marshal(keyRotResponse)
 	if err != nil {

@@ -34,7 +34,7 @@ func GetKeyFilePath() (string, error) {
 }
 
 func GetEndpointURL(path string) string {
-	return "http://" + ENDPOINT + "/api/beacon/" + path
+	return "http://" + ENDPOINT + "/api/" + path
 }
 
 func getKey() (string, error) {
