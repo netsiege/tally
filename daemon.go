@@ -44,6 +44,13 @@ func executeTaskCycle() error {
 		return err
 	}
 
+	// Get the old key before executing the task (important for rotate_key which changes the key)
+	oldKey, err := getKey()
+	if err != nil {
+		LogError("Error getting key: %v", err)
+		return err
+	}
+
 	controlResp, keyRotResp, err := executeTask(topTask)
 	if err != nil {
 		LogError("Error executing task: %v", err)
@@ -51,11 +58,17 @@ func executeTaskCycle() error {
 	}
 
 	if topTask.TaskType == "check_control" {
-		LogInfo("Control Check Response: success=%v exists=%v content=%s error=%s",
-			controlResp.success, controlResp.file_exists, controlResp.file_content, controlResp.access_error)
+		err = submitTaskResult(controlResp, oldKey)
+		if err != nil {
+			LogError("Error submitting check_control response: %v", err)
+			return err
+		}
 	} else if topTask.TaskType == "rotate_key" {
-		LogInfo("Key Rotation Response: success=%v key=%s error=%s",
-			keyRotResp.success, keyRotResp.new_key, keyRotResp.rotation_error)
+		err = submitKeyRotationResult(keyRotResp, oldKey)
+		if err != nil {
+			LogError("Error submitting rotate_key response: %v", err)
+			return err
+		}
 	}
 
 	return nil

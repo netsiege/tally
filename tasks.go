@@ -4,17 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 )
 
 // getTasks retrieves tasks from a file or remote source
 func getTasks() (Tasks, error) {
-	// TODO: getTasksFromScoreKeeper()
-	tasks, err := getTasksFromFile("tasks.json")
+	tasks, err := getTasksFromScoreKeeper()
 	if err != nil {
 		fmt.Println("Failed to get tasks:", err)
 		return Tasks{}, err
 	}
+	// tasks, err := getTasksFromFile("tasks.json")
+	// if err != nil {
+	// 	fmt.Println("Failed to get tasks:", err)
+	// 	return Tasks{}, err
+	// }
 	return tasks, nil
 }
 
@@ -38,6 +43,48 @@ func getTasksFromFile(filePath string) (Tasks, error) {
 	if err != nil {
 		fmt.Println("Error unmarshalling JSON:", err)
 		return Tasks{}, err
+	}
+
+	return tasks, nil
+}
+
+// getTasksFromScoreKeeper retrieves tasks from the scorekeeper API
+func getTasksFromScoreKeeper() (Tasks, error) {
+	tasksEndpoint := GetEndpointURL("/api/tasks")
+
+	key, err := getKey()
+	if err != nil {
+		return Tasks{}, fmt.Errorf("failed to get authentication key: %v", err)
+	}
+
+	req, err := http.NewRequest("GET", tasksEndpoint, nil)
+	if err != nil {
+		return Tasks{}, fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+key)
+	req.Header.Set("User-Agent", "Tally-Beacon/1.0")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return Tasks{}, fmt.Errorf("failed to make request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Tasks{}, fmt.Errorf("received non-200 status code: %d", resp.StatusCode)
+	}
+
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Tasks{}, fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	var tasks Tasks
+	err = json.Unmarshal(responseData, &tasks)
+	if err != nil {
+		return Tasks{}, fmt.Errorf("failed to unmarshal tasks: %v", err)
 	}
 
 	return tasks, nil
@@ -78,30 +125,40 @@ func executeTask(task Task) (controlCheckResponse, keyRotationResponse, error) {
 	return controlCheckResponse{}, keyRotationResponse{}, fmt.Errorf("unknown task type: %s", task.TaskType)
 }
 
-func submitTaskResult(checkResponse controlCheckResponse, err error) {
-	hostname, err := os.Hostname()
-	if err != nil {
-		LogError("Failure to get hostname: %v", err)
-		return
-	}
-
-	taskSubmissionEndpoint := GetEndpointURL("/" + hostname + "/score")
+func submitTaskResult(checkResponse controlCheckResponse, key string) error {
+	taskSubmissionEndpoint := GetEndpointURL("/api/claim")
 
 	jsonControlCheckResponse, err := json.Marshal(checkResponse)
 	if err != nil {
 		LogError("Failure to marshal control check response: %v", err)
-		return
-	}
-
-	key, err := getKey()
-	if err != nil {
-		LogError("Failure to get key for task submission: %v", err)
-		return
+		return err
 	}
 
 	_, err = AuthenticatedPostRequestWithPayload(taskSubmissionEndpoint, jsonControlCheckResponse, key)
 	if err != nil {
 		LogError("Failure to submit task result: %v", err)
-		return
+		return err
 	}
+
+	LogInfo("Successfully submitted check_control response")
+	return nil
+}
+
+func submitKeyRotationResult(keyRotResponse keyRotationResponse, key string) error {
+	taskSubmissionEndpoint := GetEndpointURL("/api/rotate_key")
+
+	jsonKeyRotationResponse, err := json.Marshal(keyRotResponse)
+	if err != nil {
+		LogError("Failure to marshal key rotation response: %v", err)
+		return err
+	}
+
+	_, err = AuthenticatedPostRequestWithPayload(taskSubmissionEndpoint, jsonKeyRotationResponse, key)
+	if err != nil {
+		LogError("Failure to submit key rotation result: %v", err)
+		return err
+	}
+
+	LogInfo("Successfully submitted rotate_key response")
+	return nil
 }
