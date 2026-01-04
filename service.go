@@ -15,10 +15,6 @@ type program struct {
 // Start is called by the service manager when the service starts
 // This method must be non-blocking and return quickly
 func (p *program) Start(s service.Service) error {
-	// Load configuration from config file
-	if err := LoadConfig(); err != nil {
-		return err
-	}
 
 	// Initialize logger based on execution mode
 	if err := InitLogger(s); err != nil {
