@@ -32,16 +32,16 @@ func rotateKey(task Task) (keyRotationResponse, error) {
 	keyfilePath, err := GetKeyFilePath()
 	if err != nil {
 		return keyRotationResponse{
-			success:        false,
-			rotation_error: fmt.Sprintf("failed to get key file path: %v", err),
+			Success:       false,
+			RotationError: fmt.Sprintf("failed to get key file path: %v", err),
 		}, nil
 	}
 
 	newKey, err := generateNewKey()
 	if err != nil {
 		return keyRotationResponse{
-			success:        false,
-			rotation_error: fmt.Sprintf("failed to generate new key: %v", err),
+			Success:       false,
+			RotationError: fmt.Sprintf("failed to generate new key: %v", err),
 		}, nil
 	}
 
@@ -49,8 +49,8 @@ func rotateKey(task Task) (keyRotationResponse, error) {
 	_, err = os.Stat(keyfilePath)
 	if err != nil {
 		return keyRotationResponse{
-			success:        false,
-			rotation_error: fmt.Sprintf("error checking if key file exists: %v", err),
+			Success:       false,
+			RotationError: fmt.Sprintf("error checking if key file exists: %v", err),
 		}, nil
 	}
 
@@ -60,8 +60,8 @@ func rotateKey(task Task) (keyRotationResponse, error) {
 		os.Chmod(keyfilePath, 0600)
 		if err != nil {
 			return keyRotationResponse{
-				success:        false,
-				rotation_error: fmt.Sprintf("failed to create key file: %v", err),
+				Success:       false,
+				RotationError: fmt.Sprintf("failed to create key file: %v", err),
 			}, nil
 		}
 		emptyFile.Close()
@@ -70,13 +70,13 @@ func rotateKey(task Task) (keyRotationResponse, error) {
 	err = os.WriteFile(keyfilePath, []byte(newKey), 0600)
 	if err != nil {
 		return keyRotationResponse{
-			success:        false,
-			rotation_error: fmt.Sprintf("failed to write key to file: %v", err),
+			Success:       false,
+			RotationError: fmt.Sprintf("failed to write key to file: %v", err),
 		}, nil
 	}
 
 	return keyRotationResponse{
-		success: true,
-		new_key: newKey,
+		Success: true,
+		NewKey:  newKey,
 	}, nil
 }

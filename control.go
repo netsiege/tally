@@ -18,48 +18,48 @@ func checkControl(task Task) (controlCheckResponse, error) {
 	fileStats, err := os.Stat(task.FilePath)
 	if os.IsNotExist(err) {
 		return controlCheckResponse{
-			success:      false,
-			file_path:    task.FilePath,
-			file_exists:  false,
-			access_error: "[NOTEXIST] - file does not exist",
+			Success:     false,
+			FilePath:    task.FilePath,
+			FileExists:  false,
+			AccessError: "[NOTEXIST] - file does not exist",
 		}, nil
 	}
 
 	if err != nil {
 		return controlCheckResponse{
-			success:      false,
-			file_path:    task.FilePath,
-			file_exists:  false,
-			access_error: err.Error(),
+			Success:     false,
+			FilePath:    task.FilePath,
+			FileExists:  false,
+			AccessError: err.Error(),
 		}, nil
 	}
 
 	// check file size (1 MB limit)
 	if fileStats.Size() > 1*1024*1024 {
 		return controlCheckResponse{
-			success:      false,
-			file_path:    task.FilePath,
-			file_exists:  true,
-			access_error: "[MAXSIZE] - file too large (over 1MB)",
+			Success:     false,
+			FilePath:    task.FilePath,
+			FileExists:  true,
+			AccessError: "[MAXSIZE] - file too large (over 1MB)",
 		}, nil
 	}
 
 	if fileStats.Size() == 0 {
 		return controlCheckResponse{
-			success:      false,
-			file_path:    task.FilePath,
-			file_exists:  true,
-			access_error: "[EMPTY] - file is empty",
+			Success:     false,
+			FilePath:    task.FilePath,
+			FileExists:  true,
+			AccessError: "[EMPTY] - file is empty",
 		}, nil
 	}
 
 	content, err := os.ReadFile(task.FilePath)
 	if err != nil {
 		return controlCheckResponse{
-			success:      false,
-			file_path:    task.FilePath,
-			file_exists:  true,
-			access_error: err.Error(),
+			Success:     false,
+			FilePath:    task.FilePath,
+			FileExists:  true,
+			AccessError: err.Error(),
 		}, nil
 	}
 
@@ -67,9 +67,9 @@ func checkControl(task Task) (controlCheckResponse, error) {
 	cleaned := strings.ReplaceAll(string(content), "\n", "")
 
 	return controlCheckResponse{
-		success:      true,
-		file_path:    task.FilePath,
-		file_exists:  true,
-		file_content: cleaned,
+		Success:     true,
+		FilePath:    task.FilePath,
+		FileExists:  true,
+		FileContent: cleaned,
 	}, nil
 }
