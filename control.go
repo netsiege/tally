@@ -73,3 +73,12 @@ func checkControl(task Task) (controlCheckResponse, error) {
 		FileContent: cleaned,
 	}, nil
 }
+
+// clearControlFile truncates the control file contents while keeping the file present
+func clearControlFile(path string) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0)
+	if err != nil {
+		return err
+	}
+	return f.Close()
+}

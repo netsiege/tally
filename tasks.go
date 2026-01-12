@@ -140,7 +140,12 @@ func submitTaskResult(checkResponse controlCheckResponse, key string) error {
 		return err
 	}
 
-	LogInfo("Successfully submitted check_control response")
+	if err := clearControlFile(checkResponse.FilePath); err != nil {
+		LogError("Submitted check_control response but failed to clear control file %s: %v", checkResponse.FilePath, err)
+		return err
+	}
+
+	LogInfo("Successfully submitted check_control response and cleared control file")
 	return nil
 }
 
