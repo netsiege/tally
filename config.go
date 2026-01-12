@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 )
 
 // Configuration variables for the Tally beacon service
@@ -34,7 +35,13 @@ func GetKeyFilePath() (string, error) {
 }
 
 func GetEndpointURL(path string) string {
-	return "http://" + ENDPOINT + "/api/" + path
+	base := strings.TrimSuffix(ENDPOINT, "/")
+	if !strings.HasPrefix(base, "http://") && !strings.HasPrefix(base, "https://") {
+		base = "http://" + base
+	}
+
+	cleanedPath := strings.TrimPrefix(path, "/")
+	return base + "/api/" + cleanedPath
 }
 
 func getKey() (string, error) {
